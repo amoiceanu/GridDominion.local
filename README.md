@@ -45,6 +45,17 @@ php artisan test
 
 The suite covers demand, all V1 generation types, battery charging/discharging, imports/exports, finance, city growth, construction completion, shortage handling, dashboard rendering, live ticks, and construction requests.
 
+## GitHub checks
+
+The `Required checks` workflow runs on pushes to `main` and pull requests targeting `main`. It reports these checks:
+
+- `Composer dependency audit`
+- `npm dependency audit`
+- `Production asset build`
+- `Tests & coverage (≥70%)`
+
+Add these four check names as required status checks in the repository's `main` branch ruleset to block PR merges until they pass.
+
 ### XAMPP fallback
 
 Some older Windows/XAMPP CLI builds cannot keep PHP's built-in server alive. In that case, the included local CGI bridge can be used for development only:

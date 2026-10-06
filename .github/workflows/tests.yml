@@ -1,4 +1,4 @@
-name: Tests
+name: Required checks
 
 on:
   push:
@@ -12,30 +12,84 @@ permissions:
   contents: read
 
 jobs:
-  laravel-tests:
-    name: Laravel tests (PHP 8.3)
+  composer-audit:
+    name: Composer dependency audit
     runs-on: ubuntu-latest
 
     steps:
       - name: Check out source
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Set up PHP and Composer
+        uses: shivammathur/setup-php@bf6b4fbd49ca58e4608c9c89fba0b8d90bd2a39f # 2.35.5
+        with:
+          php-version: '8.3'
+          coverage: none
+
+      - name: Audit Composer dependencies
+        run: composer audit --locked
+
+  npm-audit:
+    name: npm dependency audit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Audit npm dependencies
+        run: npm audit --audit-level=high
+
+  production-assets:
+    name: Production asset build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Build production assets
+        run: npm run build
+
+  tests-and-coverage:
+    name: Tests & coverage (≥70%)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Set up PHP
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@bf6b4fbd49ca58e4608c9c89fba0b8d90bd2a39f # 2.35.5
         with:
           php-version: '8.3'
           extensions: sqlite3, pdo_sqlite
-          coverage: none
+          coverage: pcov
 
       - name: Cache Composer packages
-        uses: actions/cache@v4
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
         with:
           path: ~/.cache/composer/files
           key: ${{ runner.os }}-php-8.3-${{ hashFiles('composer.lock') }}
           restore-keys: |
             ${{ runner.os }}-php-8.3-
 
-      - name: Install dependencies
+      - name: Install Composer dependencies
         run: composer install --prefer-dist --no-interaction --no-progress --optimize-autoloader
 
       - name: Configure test application
@@ -43,5 +97,5 @@ jobs:
           cp .env.example .env
           php artisan key:generate --force
 
-      - name: Run tests
-        run: php artisan test
+      - name: Run test suite and enforce coverage floor
+        run: php artisan test --coverage --min=70

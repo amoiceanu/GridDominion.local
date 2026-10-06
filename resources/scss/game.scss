@@ -7,3 +7,14 @@
 @media(max-width:1450px){html,body{font-size:12px}.command-layout{grid-template-columns:230px minmax(480px,1fr) 260px}.resource{padding:0 9px;min-width:85px}.resource.money{min-width:135px}.resource:nth-child(5){display:none}.brand{width:190px}.clock{width:235px}.right-rail,.left-rail{padding:7px;gap:7px}.panel-title{height:34px}.grid-status{margin:8px}.objective{padding:5px 10px}}
 @media(max-width:1050px){.command-layout{grid-template-columns:210px minmax(460px,1fr)}.right-rail{display:none}.resource:nth-child(6),.resource:nth-child(7){display:none}.brand{width:175px}.clock{width:220px}}
 @media(max-width:760px){html,body{overflow:auto}.topbar{min-width:720px}.command-layout{min-width:720px;height:850px;grid-template-columns:200px 520px}.status-footer{min-width:720px}.resource:nth-child(4){display:none}}
+
+// Runtime values are represented by classes rather than inline styles.
+@for $value from 0 through 100 {
+  .grid-width--#{$value} { width: #{$value * 1%}; }
+  .map-x--#{$value} { left: #{$value * 1%}; }
+  .map-y--#{$value} { top: #{$value * 1%}; }
+}
+
+#profit.is-profit-loss { color: var(--red); }
+#renewable.is-renewable-low { color: var(--orange); }
+.toast.toast--error { border-color: var(--red); }
